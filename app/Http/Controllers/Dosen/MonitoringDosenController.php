@@ -7,6 +7,7 @@ use App\Models\Bimbingan;
 use App\Models\Mahasiswa;
 use App\Models\Pembimbing;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -23,9 +24,11 @@ class MonitoringDosenController extends Controller
         // Check if Dosen is not null before accessing its properties
         if ($dosen) {
             // Get the Pembimbing with relationships loaded
-            $bimbingans = Bimbingan::with('mahasiswa') // Adjust the relationship name if needed
-                ->where('dosen_id', $dosen->id)
-                ->get();
+            $bimbingans = Bimbingan::select(DB::raw('MIN(id) as id, mahasiswa_id'))
+            ->where('dosen_id', '=', 1)
+            ->groupBy('mahasiswa_id')
+            ->get();
+                // dd($bimbingans);
             // Pass data to the view
             return view('dosens.monitoring.index', compact('bimbingans'));
         } else {
